@@ -21,5 +21,5 @@ Target:
 
 ### 1) Clone repo
 ```bash
-git clone https://github.com/<your-username>/heart-disease-predictor.git
+https://github.com/anu-anujan2001/Heart-Disease-Risk-Predictor-ML-Flask-Web-App-.git
 cd heart-disease-predictor

@@ -1,0 +1,376 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Heart Disease Risk Predictor</title>
+  <style>
+    :root{
+      --bg:#0b1220;
+      --card:#0f1b33;
+      --card2:#0c162b;
+      --text:#eaf0ff;
+      --muted:#b8c2e0;
+      --stroke:rgba(255,255,255,.10);
+      --stroke2:rgba(255,255,255,.18);
+      --good:#2ee59d;
+      --bad:#ff4d6d;
+      --warn:#ffcc66;
+      --btn:#5b7cff;
+      --btn2:#3c5bff;
+      --shadow: 0 20px 50px rgba(0,0,0,.35);
+      --radius:16px;
+    }
+    *{box-sizing:border-box}
+    body{
+      margin:0;
+      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial;
+      background: radial-gradient(1000px 500px at 20% 10%, rgba(91,124,255,.28), transparent 60%),
+                  radial-gradient(900px 500px at 90% 30%, rgba(46,229,157,.18), transparent 55%),
+                  linear-gradient(180deg, var(--bg), #050a14);
+      color: var(--text);
+      min-height:100vh;
+    }
+    .wrap{max-width:1060px;margin:0 auto;padding:28px 18px 60px;}
+    .top{
+      display:flex;align-items:center;justify-content:space-between;gap:16px;
+      padding:16px 18px;border:1px solid var(--stroke);border-radius:var(--radius);
+      background: linear-gradient(180deg, rgba(255,255,255,.05), rgba(255,255,255,.02));
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(10px);
+    }
+    .brand{display:flex;gap:12px;align-items:center}
+    .logo{
+      width:44px;height:44px;border-radius:14px;
+      background: linear-gradient(135deg, rgba(91,124,255,.95), rgba(46,229,157,.85));
+      display:grid;place-items:center;font-size:20px;
+      box-shadow: 0 12px 30px rgba(91,124,255,.25);
+    }
+    h1{margin:0;font-size:18px;letter-spacing:.2px}
+    .sub{margin:2px 0 0;color:var(--muted);font-size:13px}
+
+    .grid{
+      margin-top:18px;
+      display:grid;
+      grid-template-columns: 1.2fr .8fr;
+      gap:16px;
+    }
+    @media (max-width: 900px){
+      .grid{grid-template-columns:1fr;}
+    }
+
+    .card{
+      background: linear-gradient(180deg, rgba(255,255,255,.04), rgba(255,255,255,.02));
+      border:1px solid var(--stroke);
+      border-radius:var(--radius);
+      box-shadow: var(--shadow);
+      overflow:hidden;
+    }
+    .cardHeader{
+      padding:14px 16px;
+      background: linear-gradient(180deg, rgba(255,255,255,.05), rgba(255,255,255,.02));
+      border-bottom:1px solid var(--stroke);
+      display:flex;align-items:center;justify-content:space-between;gap:12px;
+    }
+    .cardHeader h2{margin:0;font-size:14px;color:#dfe7ff;letter-spacing:.2px}
+    .pill{
+      font-size:12px;color:var(--muted);
+      padding:6px 10px;border:1px solid var(--stroke2);
+      border-radius:999px;background: rgba(255,255,255,.03);
+    }
+    .cardBody{padding:16px}
+
+    form .fields{
+      display:grid;
+      grid-template-columns: repeat(2, minmax(0,1fr));
+      gap:12px;
+    }
+    @media (max-width: 560px){
+      form .fields{grid-template-columns:1fr;}
+    }
+
+    label{display:block;font-size:12px;color:var(--muted);margin-bottom:6px}
+    input, select{
+      width:100%;
+      padding:11px 12px;
+      border-radius:12px;
+      border:1px solid var(--stroke2);
+      background: rgba(7,13,26,.65);
+      color: var(--text);
+      outline:none;
+    }
+    input::placeholder{color: rgba(234,240,255,.35)}
+    input:focus, select:focus{
+      border-color: rgba(91,124,255,.7);
+      box-shadow: 0 0 0 4px rgba(91,124,255,.18);
+    }
+
+    .actions{
+      margin-top:14px;
+      display:flex;
+      gap:10px;
+      align-items:center;
+      justify-content:flex-end;
+      flex-wrap:wrap;
+    }
+    .btn{
+      border:0;
+      padding:11px 14px;
+      border-radius:12px;
+      cursor:pointer;
+      color:white;
+      background: linear-gradient(135deg, var(--btn), var(--btn2));
+      box-shadow: 0 12px 30px rgba(91,124,255,.25);
+      font-weight:600;
+    }
+    .btnGhost{
+      border:1px solid var(--stroke2);
+      padding:11px 14px;
+      border-radius:12px;
+      cursor:pointer;
+      color: var(--text);
+      background: rgba(255,255,255,.03);
+      font-weight:600;
+    }
+
+    .resultBox{
+      padding:16px;
+      border:1px solid var(--stroke);
+      border-radius:var(--radius);
+      background: linear-gradient(180deg, rgba(255,255,255,.04), rgba(255,255,255,.015));
+      box-shadow: var(--shadow);
+    }
+    .status{
+      display:flex;align-items:flex-start;gap:12px;
+    }
+    .badge{
+      width:42px;height:42px;border-radius:14px;
+      display:grid;place-items:center;
+      background: rgba(255,255,255,.05);
+      border:1px solid var(--stroke2);
+      font-size:18px;
+    }
+    .status h3{margin:0;font-size:15px}
+    .status p{margin:6px 0 0;color:var(--muted);font-size:13px;line-height:1.5}
+
+    .meterWrap{
+      margin-top:14px;
+      padding:12px;
+      border-radius:14px;
+      border:1px solid var(--stroke);
+      background: rgba(255,255,255,.02);
+    }
+    .meterTop{display:flex;justify-content:space-between;color:var(--muted);font-size:12px;margin-bottom:8px}
+    .bar{
+      height:10px;border-radius:999px;
+      background: rgba(255,255,255,.08);
+      overflow:hidden;
+      border:1px solid rgba(255,255,255,.06);
+    }
+    .fill{
+      height:100%;
+      width:0%;
+      background: linear-gradient(90deg, rgba(46,229,157,.95), rgba(255,204,102,.95), rgba(255,77,109,.95));
+    }
+    .note{
+      margin-top:12px;
+      font-size:12px;color:var(--muted);
+      border-top:1px dashed rgba(255,255,255,.14);
+      padding-top:12px;
+      line-height:1.5;
+    }
+    .mini{
+      display:grid;gap:10px;margin-top:12px;
+      grid-template-columns: repeat(2, minmax(0,1fr));
+    }
+    .miniCard{
+      padding:12px;border-radius:14px;
+      border:1px solid var(--stroke);
+      background: rgba(255,255,255,.02);
+    }
+    .miniCard .k{font-size:12px;color:var(--muted)}
+    .miniCard .v{margin-top:6px;font-size:13px}
+    .footer{margin-top:18px;color:rgba(234,240,255,.45);font-size:12px;text-align:center}
+  </style>
+</head>
+
+<body>
+  <div class="wrap">
+    <div class="top">
+      <div class="brand">
+        <div class="logo">🫀</div>
+        <div>
+          <h1>Heart Disease Risk Predictor</h1>
+        </div>
+      </div>
+    </div>
+
+    <div class="grid">
+
+      <!-- FORM -->
+      <div class="card">
+        <div class="cardHeader">
+          <h2>Patient Inputs</h2>
+          <span class="pill">All fields required</span>
+        </div>
+        <div class="cardBody">
+          <form method="POST">
+            <div class="fields">
+              <div>
+                <label>Age</label>
+                <input name="age" value="{{ form.age }}" placeholder="e.g., 52" required>
+              </div>
+
+              <div>
+                <label>Sex</label>
+                <select name="sex" required>
+                  <option value="" {% if form.sex=="" %}selected{% endif %}>Select</option>
+                  <option value="0" {% if form.sex=="0" %}selected{% endif %}>0 - Female</option>
+                  <option value="1" {% if form.sex=="1" %}selected{% endif %}>1 - Male</option>
+                </select>
+              </div>
+
+              <div>
+                <label>Chest Pain Type (cp)</label>
+                <select name="cp" required>
+                  <option value="" {% if form.cp=="" %}selected{% endif %}>Select</option>
+                  <option value="0" {% if form.cp=="0" %}selected{% endif %}>0</option>
+                  <option value="1" {% if form.cp=="1" %}selected{% endif %}>1</option>
+                  <option value="2" {% if form.cp=="2" %}selected{% endif %}>2</option>
+                  <option value="3" {% if form.cp=="3" %}selected{% endif %}>3</option>
+                </select>
+              </div>
+
+              <div>
+                <label>Resting Blood Pressure (trestbps)</label>
+                <input name="trestbps" value="{{ form.trestbps }}" placeholder="e.g., 140" required>
+              </div>
+
+              <div>
+                <label>Cholesterol (chol)</label>
+                <input name="chol" value="{{ form.chol }}" placeholder="e.g., 240" required>
+              </div>
+
+              <div>
+                <label>Fasting Blood Sugar (fbs)</label>
+                <select name="fbs" required>
+                  <option value="" {% if form.fbs=="" %}selected{% endif %}>Select</option>
+                  <option value="0" {% if form.fbs=="0" %}selected{% endif %}>0</option>
+                  <option value="1" {% if form.fbs=="1" %}selected{% endif %}>1</option>
+                </select>
+              </div>
+
+              <div>
+                <label>Rest ECG (restecg)</label>
+                <select name="restecg" required>
+                  <option value="" {% if form.restecg=="" %}selected{% endif %}>Select</option>
+                  <option value="0" {% if form.restecg=="0" %}selected{% endif %}>0</option>
+                  <option value="1" {% if form.restecg=="1" %}selected{% endif %}>1</option>
+                  <option value="2" {% if form.restecg=="2" %}selected{% endif %}>2</option>
+                </select>
+              </div>
+
+              <div>
+                <label>Max Heart Rate (thalach)</label>
+                <input name="thalach" value="{{ form.thalach }}" placeholder="e.g., 150" required>
+              </div>
+
+              <div>
+                <label>Exercise Induced Angina (exang)</label>
+                <select name="exang" required>
+                  <option value="" {% if form.exang=="" %}selected{% endif %}>Select</option>
+                  <option value="0" {% if form.exang=="0" %}selected{% endif %}>0</option>
+                  <option value="1" {% if form.exang=="1" %}selected{% endif %}>1</option>
+                </select>
+              </div>
+
+              <div>
+                <label>Oldpeak</label>
+                <input name="oldpeak" value="{{ form.oldpeak }}" placeholder="e.g., 0.8" required>
+              </div>
+
+              <div>
+                <label>Slope</label>
+                <select name="slope" required>
+                  <option value="" {% if form.slope=="" %}selected{% endif %}>Select</option>
+                  <option value="0" {% if form.slope=="0" %}selected{% endif %}>0</option>
+                  <option value="1" {% if form.slope=="1" %}selected{% endif %}>1</option>
+                  <option value="2" {% if form.slope=="2" %}selected{% endif %}>2</option>
+                </select>
+              </div>
+
+              <div>
+                <label>Number of Major Vessels (ca)</label>
+                <select name="ca" required>
+                  <option value="" {% if form.ca=="" %}selected{% endif %}>Select</option>
+                  <option value="0" {% if form.ca=="0" %}selected{% endif %}>0</option>
+                  <option value="1" {% if form.ca=="1" %}selected{% endif %}>1</option>
+                  <option value="2" {% if form.ca=="2" %}selected{% endif %}>2</option>
+                  <option value="3" {% if form.ca=="3" %}selected{% endif %}>3</option>
+                  <option value="4" {% if form.ca=="4" %}selected{% endif %}>4</option>
+                </select>
+              </div>
+
+              <div>
+                <label>Thal</label>
+                <select name="thal" required>
+                  <option value="" {% if form.thal=="" %}selected{% endif %}>Select</option>
+                  <option value="0" {% if form.thal=="0" %}selected{% endif %}>0</option>
+                  <option value="1" {% if form.thal=="1" %}selected{% endif %}>1</option>
+                  <option value="2" {% if form.thal=="2" %}selected{% endif %}>2</option>
+                  <option value="3" {% if form.thal=="3" %}selected{% endif %}>3</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="actions">
+              <button class="btnGhost" type="reset">Clear</button>
+              <button class="btn" type="submit">Predict Risk</button>
+            </div>
+          </form>
+        </div>
+      </div>
+
+      <!-- RESULT -->
+      <div class="resultBox">
+        <div class="status">
+          <div class="badge">📊</div>
+          <div>
+            <h3>Prediction Output</h3>
+            {% if result %}
+              <p><b>{{ result }}</b></p>
+            {% else %}
+              <p>Submit the form to see the model prediction here.</p>
+            {% endif %}
+          </div>
+        </div>
+
+        {% if probability is not none %}
+          {% set pct = (probability * 100) %}
+          <div class="meterWrap">
+            <div class="meterTop">
+              <span>Disease Probability</span>
+              <span><b>{{ "%.1f"|format(pct) }}%</b></span>
+            </div>
+            <div class="bar">
+              <div class="fill" style="width: {{ pct }}%;"></div>
+            </div>
+          </div>
+        {% endif %}
+
+        <div class="mini">
+          <div class="miniCard">
+            <div class="k">Model File</div>
+            <div class="v">heart_disease_model.pkl</div>
+          </div>
+          <div class="miniCard">
+            <div class="k">Tip</div>
+            <div class="v">Focus on recall for class “1” (disease).</div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</body>
+</html>
